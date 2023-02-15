@@ -21,6 +21,7 @@ jobs:
       with:
         ref: master
         path: nixpkgs-lib
+        fetch-depth: 0
     
     - name: Checkout nixpkgs repo
       uses: actions/checkout@v2
@@ -44,14 +45,12 @@ jobs:
         cd ./nixpkgs-lib
         git remote add other ../nixpkgs/
         git fetch other master
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+        export GIT_{COMMITTER,AUTHOR}_EMAIL=41898282+github-actions[bot]@users.noreply.github.com
+        export GIT_{COMMITTER,AUTHOR}_NAME=github-actions[bot]
         git merge -X theirs --allow-unrelated-histories other/master
 
     - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        directory: nixpkgs-lib
-        branch: master
+      run: |
+        cd ./nixpkgs-lib
+        git push origin master
 
