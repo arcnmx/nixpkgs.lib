@@ -21,14 +21,11 @@ jobs:
       with:
         ref: master
         path: nixpkgs-lib
+        fetch-depth: 0
     
     - name: Checkout nixpkgs repo
-      uses: actions/checkout@v2
-      with:
-        ref: master
-        repository: NixOS/nixpkgs
-        path: nixpkgs
-        fetch-depth: 0 # complete history
+      run: |
+        git clone https://github.com/NixOS/nixpkgs --branch master --single-branch
 
     - name: Procure git-filter-repo from nixpkgs
       run: "nix-env -i git-filter-repo -f '<nixpkgs>'"
@@ -51,15 +48,13 @@ jobs:
         git remote add modules ../nixpkgs-modules/
         git fetch other master
         git fetch modules master
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+        export GIT_{COMMITTER,AUTHOR}_EMAIL=41898282+github-actions[bot]@users.noreply.github.com
+        export GIT_{COMMITTER,AUTHOR}_NAME=github-actions[bot]
         git merge -X theirs --allow-unrelated-histories other/master
         git merge -X theirs --allow-unrelated-histories modules/master
 
     - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        directory: nixpkgs-lib
-        branch: master
+      run: |
+        cd ./nixpkgs-lib
+        git push origin master
 
